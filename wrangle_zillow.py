@@ -51,12 +51,20 @@ def clean_zillow(df):
 
     # most properties in southern california don't have AC
     df.heatingorsystemdesc = df.heatingorsystemdesc.fillna('None')  
-    
+
     # handle missing values
     df = handle_missing_values(df)
 
+    # add column with information from fips column
+    df['county'] = np.where(df.fips == 6037, 'Los_Angeles',
+                           np.where(df.fips == 6059, 'Orange', 
+                                   'Ventura'))  
+
+    # add a column with information from yearbuilt column
+    df['age'] = 2022 - df.yearbuilt
+
     # columns to drop
-    remove_columns = ['propertylandusetypeid', 'calculatedbathnbr', 'heatingorsystemtypeid', 'parcelid', 'propertyzoningdesc', 'id', 'id.1']
+    remove_columns = ['propertylandusetypeid', 'calculatedbathnbr', 'heatingorsystemtypeid', 'parcelid', 'propertyzoningdesc', 'id', 'id.1', 'rawcensustractandblock', 'fips', 'yearbuilt']
     df = df.drop(columns = remove_columns)
     
     col_list = ['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'calculatedfinishedsquarefeet', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt', 'landtaxvaluedollarcnt', 'taxamount', 'logerror'] 
@@ -136,7 +144,6 @@ def handle_nulls(train, validate, test):
     cols = [
     'buildingqualitytypeid',
     'regionidzip',
-    'yearbuilt',
     'regionidcity',
     'censustractandblock',
     ]
